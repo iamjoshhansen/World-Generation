@@ -62,12 +62,29 @@ _.extend(World.prototype, {
 		var key = x + '_' + y;
 
 		if ( ! (key in this.map)) {
-			var val = _.random(0,10);  // <--- Later, this can be based on something smarter (like biomes)
-			
-			if (val == 6) {
-				val += 10 + _.random(5);
+			var val = 0;
+
+			var mode = 'mountains';
+
+			switch (mode) {
+
+				case 'single-digits':
+					val = _.random(0,6);
+					if (val == 6) {
+						val += _.random(3);
+					}
+					break;
+
+				case 'mountains':
+					val = _.random(-1,5);
+
+					if (_.random(10) === 0) {
+						val += 5 + _.random(5);
+					}
+					break;
+
 			}
-			
+
 			this.map[key] = val;
 		}
 
