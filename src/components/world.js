@@ -22,6 +22,41 @@ _.extend(World, {
 
 _.extend(World.prototype, {
 
+	toString: function () {
+
+		var arr = [],
+			max_x = 0,
+			max_y = 0;
+
+		_.each(this.grids, function (grid, id) {
+
+			_.each(grid.squares, function (square) {
+
+				var x = (grid.x * grid.size) + square.x,
+					y = (grid.y * grid.size) + square.y,
+					val = square.value;
+
+				max_x = Math.max(max_x, x);
+				max_y = Math.max(max_y, y);
+
+				_.set(arr, y + '.' + x, val);
+
+			});
+
+		});
+
+		_.each(arr, function (row) {
+			if (row === null) {
+				row = [];
+			}
+		});
+
+		return arr.map(function (row) {
+			return row.join('');
+		}).join('\n');
+
+	},
+
 	getMap: function (x, y) {
 
 		var key = x + '_' + y;
