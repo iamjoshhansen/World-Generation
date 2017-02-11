@@ -12,7 +12,8 @@ window.UI = UI;
 	var $container = $('#container'),
 		ui = new UI({
 			$container: $container,
-			/*
+			
+			
 			skybox: [					
 					'./images/skyboxes/storm/nx.jpg',
 					'./images/skyboxes/storm/px.jpg',
@@ -27,7 +28,11 @@ window.UI = UI;
 	window.ui = ui;
 
 
-	var world = new World(10),
+	/*	Hemisphere Light
+	------------------------------------------*/
+
+
+	var world = new World(6),
 		world_width = 20,
 		world_height = 20;
 
@@ -42,7 +47,7 @@ window.UI = UI;
 
 	
 	/*	Dots
-	------------------------------------------*/
+	------------------------------------------*
 		var stars_geometry = new THREE.Geometry();
 
 		_.each(world.grids, function (grid) {
@@ -82,12 +87,26 @@ window.UI = UI;
 				world_height * world.size,
 				(world_width * world.size) - 1,
 				(world_height * world.size) - 1
-			),
-			material = new THREE.MeshStandardMaterial({
-				color: '#090',
-				metalness: 0,
-				wireframe: false
-			});
+			);
+
+		/*	Texture
+		------------------------------------------*/
+			var texture = new THREE.TextureLoader().load( "./images/grass.jpg" );
+			texture.wrapS = THREE.RepeatWrapping;
+			texture.wrapT = THREE.RepeatWrapping;
+			texture.repeat.set( world_width * world.size, world_height * world.size );
+
+			
+
+		/*	Material
+		------------------------------------------*/
+			var material = new THREE.MeshStandardMaterial({
+					color: '#090',
+					map: texture,
+					metalness: 0,
+					roughness: 1,
+					wireframe: false
+				});
 
 		_.each(geometry.vertices, function (vertice, i) {
 
@@ -108,7 +127,11 @@ window.UI = UI;
 
 		});
 
-		geometry = new THREE.BufferGeometry().fromGeometry(geometry);
+
+
+
+		// Make it low-poly
+		//geometry = new THREE.BufferGeometry().fromGeometry(geometry);
 
 		var ground = new THREE.Mesh( geometry, material );
 
@@ -223,29 +246,59 @@ window.UI = UI;
 
 	/*	Water
 	------------------------------------------*/
-		var water_geometry = new THREE.PlaneGeometry(
-				world_width * world.size,
-				world_height * world.size
-			),
-			water_material = new THREE.MeshStandardMaterial({
-				color: '#09f',
-				wireframe: false
-			}),
-			water = new THREE.Mesh( water_geometry, water_material );
+		(function () {
 
-		water.rotateX(Math.PI / -2);
-		water.position.y = 1.99 * scale;
+			/*	geometry
+			------------------------------------------*/
+				var geometry = new THREE.PlaneGeometry(
+						world_width * world.size,
+						world_height * world.size
+					);
 
-		water.scale.x = scale;
-		water.scale.y = scale;
-		water.scale.z = scale;
+			/*	Texture
+			------------------------------------------*/
+				var texture = new THREE.TextureLoader().load( "./images/water.jpg" );
+				texture.wrapS = THREE.RepeatWrapping;
+				texture.wrapT = THREE.RepeatWrapping;
+				texture.repeat.set( world_width * world.size, world_height * world.size );
 
-		water.position.x += (scale * world_width * world.size) / 2;
-		water.position.z += (scale * world_height * world.size) / 2;
+			/*	Material
+			------------------------------------------*/
+				var material = new THREE.MeshStandardMaterial({
+					color: '#09f',
+					map: texture,
+					metalness: 0.25,
+					roughness: 0.65,
+					wireframe: false,
+					transparent: true,
+					opacity: 0.85
+				});
 
-		ui.scene.add( water );
 
-		window.water = water;
+			/*	Mesh
+			------------------------------------------*/
+				var water = new THREE.Mesh( geometry, material );
+
+
+			/*	Positioning
+			------------------------------------------*/
+				water.rotateX(Math.PI / -2);
+				water.position.y = 1.99 * scale;
+
+				water.scale.x = scale;
+				water.scale.y = scale;
+				water.scale.z = scale;
+
+				water.position.x += (scale * world_width * world.size) / 2;
+				water.position.z += (scale * world_height * world.size) / 2;
+
+			/*	Add it!
+			------------------------------------------*/
+				ui.scene.add( water );
+
+				window.water = water;
+
+		})();
 
 	/**/
 
@@ -308,6 +361,10 @@ window.UI = UI;
 
 	ui.ambient_light.intensity = 0.25;
 	ui.directional_light.intensity = 0.75;
+
+
+	var hl = new THREE.HemisphereLight('#9ff','#090',0.5);
+	ui.scene.add(hl);
 
 	_.extend(ui.directional_light.position, {x: -1, y: 0.7, z: -1});
 
