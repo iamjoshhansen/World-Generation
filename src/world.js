@@ -13,7 +13,7 @@ window.UI = UI;
 		ui = new UI({
 			$container: $container,
 			
-			
+			/*
 			skybox: [					
 					'./images/skyboxes/storm/nx.jpg',
 					'./images/skyboxes/storm/px.jpg',
@@ -27,9 +27,6 @@ window.UI = UI;
 
 	window.ui = ui;
 
-
-	/*	Hemisphere Light
-	------------------------------------------*/
 
 
 	var world = new World(6),
@@ -91,7 +88,7 @@ window.UI = UI;
 
 		/*	Texture
 		------------------------------------------*/
-			var texture = new THREE.TextureLoader().load( "./images/grass.jpg" );
+			var texture = new THREE.TextureLoader().load( "./images/grass-hd.jpg" );
 			texture.wrapS = THREE.RepeatWrapping;
 			texture.wrapT = THREE.RepeatWrapping;
 			texture.repeat.set( world_width * world.size, world_height * world.size );
@@ -103,6 +100,8 @@ window.UI = UI;
 			var material = new THREE.MeshStandardMaterial({
 					color: '#090',
 					map: texture,
+					bumpMap: texture,
+					bumpScale: -0.3,
 					metalness: 0,
 					roughness: 1,
 					wireframe: false
@@ -131,7 +130,7 @@ window.UI = UI;
 
 
 		// Make it low-poly
-		//geometry = new THREE.BufferGeometry().fromGeometry(geometry);
+		geometry = new THREE.BufferGeometry().fromGeometry(geometry);
 
 		var ground = new THREE.Mesh( geometry, material );
 
@@ -267,11 +266,14 @@ window.UI = UI;
 				var material = new THREE.MeshStandardMaterial({
 					color: '#09f',
 					map: texture,
-					metalness: 0.25,
+					bumpMap: texture,
+					bumpScale: -0.3,
 					roughness: 0.65,
+					metalness: 0.25,
 					wireframe: false,
 					transparent: true,
-					opacity: 0.85
+					opacity: 0.85,
+					side: THREE.DoubleSide
 				});
 
 
@@ -363,8 +365,11 @@ window.UI = UI;
 	ui.directional_light.intensity = 0.75;
 
 
-	var hl = new THREE.HemisphereLight('#9ff','#090',0.5);
-	ui.scene.add(hl);
+	/*	Hemisphere Light
+	------------------------------------------*/
+		var hl = new THREE.HemisphereLight('#9ff','#090',0.5);
+		ui.scene.add(hl);
+
 
 	_.extend(ui.directional_light.position, {x: -1, y: 0.7, z: -1});
 
@@ -376,6 +381,34 @@ window.UI = UI;
 		ui.scene.fog.density = 0.003;
 	}
 
+
+	window.fog_d_w = 0.05;
+	window.fog_d_a = 0.005;
+
+	window.background = {};
+
+	_.extend(background, new THREE.Color('#cff'));
+
+	ui.on('frame', function () {
+
+		_.extend(ui.scene.background, window.background);
+
+		if (ui.camera.position.y < water.position.y) {
+			// water
+			ui.scene.fog.density = window.fog_d_w;
+
+			_.extend(ui.scene.fog.color, {
+				r: 0.1,
+				g: 0.7,
+				b: 0.9
+			});
+		} else {
+			// air
+			ui.scene.fog.density = window.fog_d_a;
+
+			_.extend(ui.scene.fog.color, window.background);
+	    }
+	});
 
 
 
