@@ -12,6 +12,8 @@ function Grid (params) {
 	this.corners = params.corners;
 	this.world = params.world;
 
+	this.size++;
+
 	var len = this.size * this.size;
 
 	for (var i=0; i<len; i++) {
@@ -28,6 +30,7 @@ function Grid (params) {
 	this.getSquare(0,this.size-1).value           = this.corners[3];
 
 	this.interpolate();
+	this.trimRightBottomEdges();
 
 }
 
@@ -127,6 +130,19 @@ _.extend(Grid.prototype, {
 		}
 
 		return square.value;
+	},
+
+	trimRightBottomEdges: function () {
+
+		for (var i = this.squares.length - 1; i >= 0; i--) {
+			var square = this.squares[i];
+			if (square.x === this.size-1 || square.y === this.size-1) {
+				this.squares.splice(i,1);
+			}
+		};
+
+		this.size--;
+
 	}
 
 });
