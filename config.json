@@ -1,0 +1,7 @@
+{
+	"name":         "world",
+	"cwd":          "./",
+	"build_dir":    "build",
+	"grunt_dir":    "grunt",
+	"source_dir":   "src"
+}
